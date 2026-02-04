@@ -2,9 +2,10 @@ services:
   web:
     image: ghcr.io/lordofreinkeness/about.me:latest
     restart: unless-stopped
+    container_name: about.me
     networks:
-      - nginx_proxy
+      - nginx_proxy-network
 
 networks:
-  nginx_proxy:
+  nginx_proxy-network:
     external: true
