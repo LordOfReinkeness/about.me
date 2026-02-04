@@ -1,0 +1,10 @@
+services:
+  web:
+    image: ghcr.io/OWNER/REPO:latest
+    restart: unless-stopped
+    networks:
+      - nginx_proxy
+
+networks:
+  nginx_proxy:
+    external: true

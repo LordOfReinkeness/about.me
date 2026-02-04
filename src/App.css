@@ -1,0 +1,42 @@
+.terminal {
+  width: 100%;
+  max-width: 900px;
+  min-height: 60vh;
+  padding: 40px;
+  box-sizing: border-box;
+  font-family: 'Fira Code', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 18px;
+  line-height: 1.8;
+  text-align: left;
+}
+
+.terminal-line {
+  margin: 0;
+  color: #a0a0a0;
+}
+
+.prompt {
+  color: #50fa7b;
+  margin-right: 10px;
+}
+
+.terminal-output {
+  color: #f8f8f2;
+  margin: 24px 0;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.cursor {
+  color: #50fa7b;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
