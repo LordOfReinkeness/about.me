@@ -1,0 +1,45 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --green:   #4ec9b0;
+  --red:     #f44747;
+  --yellow:  #dcdcaa;
+  --cyan:    #9cdcfe;
+  --gray:    #808080;
+  --white:   #d4d4d4;
+  --prompt:  #569cd6;
+  --bg:      #0d0d0d;
+  --fg:      #d4d4d4;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+#root {
+  padding: 1.5rem;
+  max-width: 860px;
+}
+
+a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+pre {
+  white-space: pre;
+  overflow-x: auto;
+}
