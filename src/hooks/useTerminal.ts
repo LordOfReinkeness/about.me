@@ -10,21 +10,30 @@ export type OutputData =
 export type HistoryEntry = {
     id: number;
     command: string;
+    time: string;
     output: OutputData;
 };
 
 let nextId = 1;
+
+function formatTime() {
+    const now = new Date();
+    return [now.getHours(), now.getMinutes(), now.getSeconds()]
+        .map(n => String(n).padStart(2, '0'))
+        .join(':');
+}
 
 export function useTerminal() {
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [, setHistoryIndex] = useState(-1);
     const [input, setInput] = useState('');
+    const [promptTime, setPromptTime] = useState(formatTime);
 
     // Auto-display welcome on mount
     useEffect(() => {
         const id = nextId++;
-        setHistory([{ id, command: '', output: { kind: 'loading' } }]);
+        setHistory([{ id, command: '', time: formatTime(), output: { kind: 'loading' } }]);
 
         fetch('/content/welcome.txt')
             .then(r => r.text())
@@ -38,7 +47,7 @@ export function useTerminal() {
             });
     }, []);
 
-    const executeCommand = useCallback((raw: string) => {
+    const executeCommand = useCallback((raw: string, time: string) => {
         const cmd = raw.trim().toLowerCase();
 
         if (!cmd) return;
@@ -57,7 +66,7 @@ export function useTerminal() {
             const output = `Available commands:\n\n${lines}\n\n  clear       Clear the terminal\n  help        Show this help`;
 
             const id = nextId++;
-            setHistory(prev => [...prev, { id, command: raw, output: { kind: 'txt', content: output } }]);
+            setHistory(prev => [...prev, { id, command: raw, time, output: { kind: 'txt', content: output } }]);
             setCommandHistory(prev => [raw, ...prev]);
             setHistoryIndex(-1);
             return;
@@ -70,6 +79,7 @@ export function useTerminal() {
             setHistory(prev => [...prev, {
                 id,
                 command: raw,
+                time,
                 output: { kind: 'error', message: `command not found: ${cmd}. Type 'help' for available commands.` },
             }]);
             setCommandHistory(prev => [raw, ...prev]);
@@ -79,7 +89,7 @@ export function useTerminal() {
 
         // Push loading entry, then fetch and replace
         const id = nextId++;
-        setHistory(prev => [...prev, { id, command: raw, output: { kind: 'loading' } }]);
+        setHistory(prev => [...prev, { id, command: raw, time, output: { kind: 'loading' } }]);
         setCommandHistory(prev => [raw, ...prev]);
         setHistoryIndex(-1);
 
@@ -107,8 +117,10 @@ export function useTerminal() {
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            executeCommand(input);
+            const submittedAt = formatTime();
+            executeCommand(input, submittedAt);
             setInput('');
+            setPromptTime(formatTime());
             return;
         }
 
@@ -136,5 +148,5 @@ export function useTerminal() {
         }
     }, [input, commandHistory, executeCommand]);
 
-    return { history, input, handleInputChange, handleKeyDown };
+    return { history, input, promptTime, handleInputChange, handleKeyDown };
 }

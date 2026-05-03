@@ -7,11 +7,12 @@ import type { HistoryEntry } from '../hooks/useTerminal';
 type Props = {
     history: HistoryEntry[];
     input: string;
+    promptTime: string;
     onInputChange: (value: string) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
-export function Terminal({ history, input, onInputChange, onKeyDown }: Props) {
+export function Terminal({ history, input, promptTime, onInputChange, onKeyDown }: Props) {
     const bottomRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -23,7 +24,7 @@ export function Terminal({ history, input, onInputChange, onKeyDown }: Props) {
             <TopBar />
             <div className="terminal-body" onClick={() => (document.querySelector<HTMLInputElement>('.terminal-input'))?.focus()}>
                 <HistoryList history={history} />
-                <InputLine value={input} onChange={onInputChange} onKeyDown={onKeyDown} />
+                <InputLine time={promptTime} value={input} onChange={onInputChange} onKeyDown={onKeyDown} />
                 <div ref={bottomRef} />
             </div>
             <BottomBar />

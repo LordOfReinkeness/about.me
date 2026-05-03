@@ -11,8 +11,8 @@ export function HistoryEntry({ entry }: Props) {
         <div className="history-entry">
             {entry.command && (
                 <div className="history-prompt-line">
-                    <Prompt />
-                    <span>{entry.command}</span>
+                    <Prompt time={entry.time} />
+                    <span className="history-command">{entry.command}</span>
                 </div>
             )}
             <div className={entry.command ? 'history-output' : ''}>

@@ -1,30 +1,13 @@
-import { useState, useEffect } from 'react';
 import { Prompt } from './Prompt';
 
-function useClock() {
-    const fmt = () => {
-        const now = new Date();
-        return [now.getHours(), now.getMinutes(), now.getSeconds()]
-            .map(n => String(n).padStart(2, '0'))
-            .join(':');
-    };
-    const [time, setTime] = useState(fmt);
-    useEffect(() => {
-        const id = setInterval(() => setTime(fmt()), 1000);
-        return () => clearInterval(id);
-    }, []);
-    return time;
-}
-
 type Props = {
+    time: string;
     value: string;
     onChange: (value: string) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
-export function InputLine({ value, onChange, onKeyDown }: Props) {
-    const time = useClock();
-
+export function InputLine({ time, value, onChange, onKeyDown }: Props) {
     return (
         <div className="input-line">
             <Prompt time={time} />
