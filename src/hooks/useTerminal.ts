@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { COMMANDS, resolveCommand } from '../commands';
+import { runRuntimeCommand } from '../commands/runtime';
 
 export type OutputData =
     | { kind: 'txt';     content: string }
@@ -30,8 +31,7 @@ export function useTerminal() {
     const [input, setInput] = useState('');
     const [promptTime, setPromptTime] = useState(formatTime);
 
-    // Auto-display welcome on mount
-    useEffect(() => {
+    const showWelcome = useCallback(() => {
         const id = nextId++;
         setHistory([{ id, command: '', time: formatTime(), output: { kind: 'loading' } }]);
 
@@ -47,13 +47,20 @@ export function useTerminal() {
             });
     }, []);
 
+    // Auto-display welcome on mount
+    useEffect(() => {
+        showWelcome();
+    }, [showWelcome]);
+
     const executeCommand = useCallback((raw: string, time: string) => {
-        const cmd = raw.trim().toLowerCase();
+        const trimmed = raw.trim();
+        const [firstToken = ''] = trimmed.split(/\s+/);
+        const cmd = firstToken.toLowerCase();
 
         if (!cmd) return;
 
         if (cmd === 'clear') {
-            setHistory([]);
+            showWelcome();
             setCommandHistory(prev => [raw, ...prev]);
             setHistoryIndex(-1);
             return;
@@ -63,12 +70,51 @@ export function useTerminal() {
             const lines = Object.entries(COMMANDS)
                 .map(([name, def]) => `  ${name.padEnd(12)}${def.description}`)
                 .join('\n');
-            const output = `Available commands:\n\n${lines}\n\n  clear       Clear the terminal\n  help        Show this help`;
+            const output = `Available commands:\n\n${lines}\n\n  help        Show this help`;
 
             const id = nextId++;
             setHistory(prev => [...prev, { id, command: raw, time, output: { kind: 'txt', content: output } }]);
             setCommandHistory(prev => [raw, ...prev]);
             setHistoryIndex(-1);
+            return;
+        }
+
+        const runtimeResult = runRuntimeCommand(raw, COMMANDS);
+        if (runtimeResult) {
+            const id = nextId++;
+            setHistory(prev => [...prev, { id, command: raw, time, output: { kind: 'loading' } }]);
+            setCommandHistory(prev => [raw, ...prev]);
+            setHistoryIndex(-1);
+
+            if (runtimeResult.kind === 'file') {
+                fetch(runtimeResult.file)
+                    .then(r => {
+                        if (!r.ok) throw new Error(`${r.status}`);
+                        return r.text();
+                    })
+                    .then(content => {
+                        setHistory(prev =>
+                            prev.map(e => e.id === id ? { ...e, output: { kind: runtimeResult.outputKind, content } } : e)
+                        );
+                    })
+                    .catch(() => {
+                        setHistory(prev =>
+                            prev.map(e => e.id === id ? { ...e, output: { kind: 'error', message: runtimeResult.notFoundMessage } } : e)
+                        );
+                    });
+                return;
+            }
+
+            if (runtimeResult.kind === 'txt') {
+                setHistory(prev =>
+                    prev.map(e => e.id === id ? { ...e, output: { kind: 'txt', content: runtimeResult.content } } : e)
+                );
+                return;
+            }
+
+            setHistory(prev =>
+                prev.map(e => e.id === id ? { ...e, output: { kind: 'error', message: runtimeResult.message } } : e)
+            );
             return;
         }
 
@@ -108,7 +154,7 @@ export function useTerminal() {
                     prev.map(e => e.id === id ? { ...e, output: { kind: 'error', message: `failed to load content for: ${cmd}` } } : e)
                 );
             });
-    }, []);
+    }, [showWelcome]);
 
     const handleInputChange = useCallback((value: string) => {
         setInput(value);
@@ -116,6 +162,31 @@ export function useTerminal() {
     }, []);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.ctrlKey && e.key.toLowerCase() === 'l') {
+            e.preventDefault();
+            showWelcome();
+            setInput('');
+            setHistoryIndex(-1);
+            setPromptTime(formatTime());
+            return;
+        }
+
+        if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+            e.preventDefault();
+            const interruptedAt = formatTime();
+            const id = nextId++;
+            setHistory(prev => [...prev, {
+                id,
+                command: '^C',
+                time: interruptedAt,
+                output: { kind: 'txt', content: '' },
+            }]);
+            setInput('');
+            setHistoryIndex(-1);
+            setPromptTime(formatTime());
+            return;
+        }
+
         if (e.key === 'Enter') {
             const submittedAt = formatTime();
             executeCommand(input, submittedAt);

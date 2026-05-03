@@ -11,18 +11,22 @@ export function InputLine({ time, value, onChange, onKeyDown }: Props) {
     return (
         <div className="input-line">
             <Prompt time={time} />
-            <input
-                type="text"
-                value={value}
-                onChange={e => onChange(e.target.value)}
-                onKeyDown={onKeyDown}
-                autoFocus
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck={false}
-                className="terminal-input"
-            />
+            <div className="terminal-input-wrap">
+                <span className="terminal-input-mirror">{value}</span>
+                <span className="terminal-cursor" aria-hidden="true" />
+                <input
+                    type="text"
+                    value={value}
+                    onChange={e => onChange(e.target.value)}
+                    onKeyDown={onKeyDown}
+                    autoFocus
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    className="terminal-input"
+                />
+            </div>
         </div>
     );
 }
