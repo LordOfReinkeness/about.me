@@ -1,5 +1,6 @@
 import type { HistoryEntry as HistoryEntryType } from '../hooks/useTerminal';
 import { OutputBlock } from './OutputBlock';
+import { Prompt } from './Prompt';
 
 type Props = {
     entry: HistoryEntryType;
@@ -7,14 +8,14 @@ type Props = {
 
 export function HistoryEntry({ entry }: Props) {
     return (
-        <div style={{ marginBottom: '1rem' }}>
+        <div className="history-entry">
             {entry.command && (
-                <div>
-                    <span style={{ color: 'var(--prompt)' }}>guest@lukas:~$ </span>
+                <div className="history-prompt-line">
+                    <Prompt />
                     <span>{entry.command}</span>
                 </div>
             )}
-            <div style={{ marginTop: entry.command ? '0.25rem' : 0 }}>
+            <div className={entry.command ? 'history-output' : ''}>
                 <OutputBlock output={entry.output} />
             </div>
         </div>

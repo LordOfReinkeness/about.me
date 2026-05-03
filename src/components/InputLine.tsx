@@ -1,3 +1,21 @@
+import { useState, useEffect } from 'react';
+import { Prompt } from './Prompt';
+
+function useClock() {
+    const fmt = () => {
+        const now = new Date();
+        return [now.getHours(), now.getMinutes(), now.getSeconds()]
+            .map(n => String(n).padStart(2, '0'))
+            .join(':');
+    };
+    const [time, setTime] = useState(fmt);
+    useEffect(() => {
+        const id = setInterval(() => setTime(fmt()), 1000);
+        return () => clearInterval(id);
+    }, []);
+    return time;
+}
+
 type Props = {
     value: string;
     onChange: (value: string) => void;
@@ -5,9 +23,11 @@ type Props = {
 };
 
 export function InputLine({ value, onChange, onKeyDown }: Props) {
+    const time = useClock();
+
     return (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ color: 'var(--prompt)', flexShrink: 0 }}>guest@lukas:~$ </span>
+        <div className="input-line">
+            <Prompt time={time} />
             <input
                 type="text"
                 value={value}
@@ -18,15 +38,7 @@ export function InputLine({ value, onChange, onKeyDown }: Props) {
                 autoCorrect="off"
                 autoCapitalize="off"
                 spellCheck={false}
-                style={{
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none',
-                    color: 'var(--fg)',
-                    font: 'inherit',
-                    flex: 1,
-                    caretColor: 'var(--fg)',
-                }}
+                className="terminal-input"
             />
         </div>
     );

@@ -18,7 +18,7 @@ let nextId = 1;
 export function useTerminal() {
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
-    const [historyIndex, setHistoryIndex] = useState(-1);
+    const [, setHistoryIndex] = useState(-1);
     const [input, setInput] = useState('');
 
     // Auto-display welcome on mount

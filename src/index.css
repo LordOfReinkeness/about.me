@@ -9,25 +9,29 @@
   --red:     #f44747;
   --yellow:  #dcdcaa;
   --cyan:    #9cdcfe;
-  --gray:    #808080;
+  --gray:    #606060;
   --white:   #d4d4d4;
   --prompt:  #569cd6;
   --bg:      #0d0d0d;
   --fg:      #d4d4d4;
+  --bg-bar:  #111111;
+  --border:  #252525;
 }
 
 html, body {
+  height: 100%;
+  overflow: hidden;
   background: var(--bg);
   color: var(--fg);
   font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
   font-size: 15px;
   line-height: 1.6;
-  min-height: 100vh;
 }
 
 #root {
-  padding: 1.5rem;
-  max-width: 860px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 a {
@@ -42,4 +46,111 @@ a:hover {
 pre {
   white-space: pre;
   overflow-x: auto;
+}
+
+/* ── Layout ─────────────────────────────────────────── */
+
+.terminal-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.terminal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2.5rem;
+  cursor: text;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.terminal-body::-webkit-scrollbar        { width: 5px; }
+.terminal-body::-webkit-scrollbar-track  { background: transparent; }
+.terminal-body::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 3px; }
+
+/* ── Top bar ─────────────────────────────────────────── */
+
+.top-bar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 2.5rem;
+  background: var(--bg-bar);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  user-select: none;
+}
+
+.top-bar-left  { display: flex; align-items: center; }
+.top-bar-right { }
+
+.tb-name     { color: var(--green);  font-weight: bold; }
+.tb-role     { color: var(--cyan);   }
+.tb-location { color: var(--yellow); }
+.tb-sep      { color: var(--gray);   }
+.tb-github   { color: var(--gray);   }
+
+/* ── Bottom bar ──────────────────────────────────────── */
+
+.bottom-bar {
+  flex-shrink: 0;
+  padding: 0.3rem 2.5rem;
+  background: var(--bg-bar);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bb-hint     { color: var(--gray);   }
+.bb-commands { color: var(--border); filter: brightness(2.5); }
+
+/* ── History ─────────────────────────────────────────── */
+
+.history-entry {
+  margin-bottom: 1rem;
+}
+
+.history-prompt-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.history-output {
+  margin-top: 0.15rem;
+}
+
+/* ── Prompt ──────────────────────────────────────────── */
+
+.input-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.p-hash   { color: var(--white);  }
+.p-user   { color: var(--cyan);   font-weight: bold; }
+.p-at     { color: var(--white);  }
+.p-host   { color: var(--green);  font-weight: bold; }
+.p-in     { color: var(--white);  }
+.p-dir    { color: var(--yellow); font-weight: bold; }
+.p-time   { color: var(--gray);   }
+.p-dollar { color: var(--white);  }
+
+.terminal-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--fg);
+  font: inherit;
+  flex: 1;
+  caret-color: var(--green);
+  min-width: 4ch;
 }
